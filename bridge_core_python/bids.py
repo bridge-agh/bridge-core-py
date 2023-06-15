@@ -39,6 +39,11 @@ class TrickBid:
 
     def __str__(self) -> str:
         return f"{self.tricks}{self.suit}"
+    
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, TrickBid): return False
+        return self.suit == other.suit and self.tricks == other.tricks
+        
 
     def __lt__(self, other: "TrickBid") -> bool:
         if self.tricks.tricks < other.tricks.tricks:
@@ -47,6 +52,12 @@ class TrickBid:
             return self.suit.value < other.suit.value
         else:
             return False
+        
+    def __str__(self) -> str:
+        return f"{self.tricks}{self.suit}"
+
+    def __repr__(self) -> str:
+        return self.__str__()
 
 
 def is_legal(current_bid: TrickBid, new_bid: Union[TrickBid, SpecialBid]) -> bool:

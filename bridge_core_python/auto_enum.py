@@ -14,3 +14,6 @@ class AutoEnum(Enum):
     
     def __str__(self) -> str:
         return self.display
+    
+    def __repr__(self) -> str:
+        return self.__str__()

@@ -1,10 +1,9 @@
 from typing import Union
 from bridge_core_python.auto_enum import AutoEnum
-from bridge_core_python.cards import Card, Rank
+from bridge_core_python.cards import Card, Rank, Suit as CardSuit
 from bridge_core_python.bids import Suit, TrickBid, SpecialBid, Tricks, is_legal
+from bridge_core_python.player import Player, PlayerDirection
 import numpy as np
-
-from player import Player, PlayerDirection
 
 
 class GameStage(AutoEnum):
@@ -17,16 +16,16 @@ class Game:
     def __init__(self, seed: int = 42):
         rng = np.random.default_rng(seed=seed)
 
-        # shuffle dekc
-        deck = [Card(suit, rank) for suit in Suit for rank in Rank]
+        # shuffle deck
+        deck = [Card(suit, rank) for suit in CardSuit for rank in Rank]
         rng.shuffle(deck)
 
         # deal cards
         self.players = {
-            PlayerDirection.NORTH: Player(deck[0:13]),
-            PlayerDirection.EAST: Player(deck[13:26]),
-            PlayerDirection.SOUTH: Player(deck[26:39]),
-            PlayerDirection.WEST: Player(deck[39:52]),
+            PlayerDirection.NORTH: Player(sorted(deck[0:13])),
+            PlayerDirection.EAST: Player(sorted(deck[13:26])),
+            PlayerDirection.SOUTH: Player(sorted(deck[26:39])),
+            PlayerDirection.WEST: Player(sorted(deck[39:52])),
         }
 
         # define tricks
@@ -42,6 +41,7 @@ class Game:
 
         # determine dealer
         self.current_player = rng.choice(list(self.players.keys()))
+        self.first_dealer = self.current_player
 
         self.stage = GameStage.BIDDING
 
@@ -50,54 +50,48 @@ class Game:
         self.declarer = None
         self.multiplier = 1
 
-        self.is_dziadek_showing_karty = False
+        self.is_dummy_showing_cards = False
         self.round_player = None
         self.round_cards: list[Card] = []
 
     def card_check(self, card: Card):
-        # czy gracz ma taka karte
+        # card must be in player's hand
         if not card in self.players[self.current_player].cards:
             return False
 
-        # pierwszy rzut dowolna karta
+        # first card can be any card
         if self.round_player == self.current_player:
             return True
 
-        # karta musi byc tego samego koloru co pierwsza karta
+        # card must be in the same suit as the first card
         elif self.round_cards[0].suit == card.suit:
             return True
 
-        # jezeli gracz nie ma karty w tym kolorze to dowolna karta
+        # if player has no cards in the same suit as the first card, any card can be played
         elif not any(
-            card.suit == card.suit for card in self.players[self.current_player].cards
+            self.round_cards[0].suit == cardi.suit
+            for cardi in self.players[self.current_player].cards
         ):
             return True
 
         return False
 
     def trick_check(self):
-        round_trump = self.round_cards[0].suit
-
         winning_card = self.round_cards[0]
         winning_player_index = 0
-        for card, i in enumerate(self.round_cards[1:]):
-            # karta jest tego samego koloru co pierwsza karta i jest wieksza od wygrywajacej karty
-            if card.suit == round_trump and card.rank > winning_card.rank:
-                winning_card = card
-                winning_player_index = i + 1
-
-            # karta jest atutem
-            elif card.suit == self.bid.suit:
-                # wygrywajaca karta tez jest atutem
-                if winning_card.suit == card.suit:
-                    # karta jest silniejsza od wygrywajacej
-                    if card.rank > winning_card.rank:
-                        winning_card = card
-                        winning_player_index = i + 1
-                # wygrywajaca karta nie jest atutem
-                else:
+        for i, card in enumerate(self.round_cards[1:]):
+            # if suit is the same as winning and rank is higher then card wins
+            # if trump was played before, only trump cards can win
+            # if card has trump suit then it will be checked here
+            if card.suit == winning_card.suit:
+                if card.rank > winning_card.rank:
                     winning_card = card
                     winning_player_index = i + 1
+
+            # if card is trump then the winning card is not trump because of the previous if
+            elif card.suit == self.bid.suit:
+                winning_card = card
+                winning_player_index = i + 1
 
         winning_player = self.round_player
         for i in range(winning_player_index):
@@ -105,6 +99,7 @@ class Game:
 
         return winning_player
 
+    # TODO
     def actions(self):
         if self.stage == GameStage.BIDDING:
             if self.bid is None:
@@ -138,7 +133,8 @@ class Game:
     def step(self, action: Union[Card, TrickBid, SpecialBid]):
         if self.stage == GameStage.BIDDING:
             assert isinstance(action, (TrickBid, SpecialBid))
-            assert is_legal(self.bid, action)
+            if not is_legal(self.bid, action):
+                raise ValueError("Illegal bid")
 
             self.bid_history.append(action)
 
@@ -165,15 +161,16 @@ class Game:
                 self.bid = action
                 self.declarer = self.current_player
                 self.multiplier = 1
-            # doubled current bid
+            # double current bid
             elif action == SpecialBid.DOUBLE:
-                self.multiplier = 2
+                self.multiplier *= 2
 
         elif self.stage == GameStage.PLAYING:
             assert isinstance(action, Card)
-            assert self.card_check(action)
+            if not self.card_check(action):
+                raise ValueError("Illegal card")
 
-            self.is_dziadek_showing_karty = True
+            self.is_dummy_showing_cards = True
 
             self.round_cards.append(action)
             self.players[self.current_player].cards.remove(action)
@@ -181,18 +178,71 @@ class Game:
             if len(self.round_cards) == 4:
                 winning_player = self.trick_check()
                 self.tricks[winning_player].append(
-                    self.round_player, winning_player, self.round_cards
+                    (self.round_player, winning_player, self.round_cards)
                 )
+
+                # reset round
+                self.round_cards = []
+                self.round_player = winning_player
+                self.current_player = winning_player
 
                 # check if game is over
                 if len(self.NS_tricks) + len(self.EW_tricks) == 13:
                     self.stage = GameStage.SCORING
                     return
 
-                # reset round
-                self.round_cards = []
-                self.round_player = winning_player
-                self.current_player = winning_player
                 return
 
         self.current_player = self.current_player.next()
+
+    def player_observation(self, player: PlayerDirection):
+        return {
+            "game_stage": self.stage,
+            "current_player": self.current_player,
+            "bidding": {
+                "first_dealer": self.first_dealer,
+                "bid_history": self.bid_history,
+                "bid": self.bid,
+                "declarer": self.declarer,
+                "multiplier": self.multiplier,
+            },
+            "game": {
+                "round_player": self.round_player,
+                "round_cards": self.round_cards,
+                "dummy": self.players[self.declarer.next()].cards
+                if self.is_dummy_showing_cards
+                else [],
+                "tricks": {
+                    "NS": self.NS_tricks,
+                    "EW": self.EW_tricks,
+                },
+            },
+            "hand": self.players[player].cards,
+        }
+
+    def game_observation(self):
+        return {
+            "game_stage": self.stage,
+            "current_player": self.current_player,
+            "bidding": {
+                "first_dealer": self.first_dealer,
+                "bid_history": self.bid_history,
+                "bid": self.bid,
+                "declarer": self.declarer,
+                "multiplier": self.multiplier,
+            },
+            "game": {
+                "round_player": self.round_player,
+                "round_cards": self.round_cards,
+                "tricks": {
+                    "NS": self.NS_tricks,
+                    "EW": self.EW_tricks,
+                },
+            },
+            "hands": {
+                "N": self.players[PlayerDirection.NORTH].cards,
+                "E": self.players[PlayerDirection.EAST].cards,
+                "W": self.players[PlayerDirection.WEST].cards,
+                "S": self.players[PlayerDirection.SOUTH].cards,
+            },
+        }
