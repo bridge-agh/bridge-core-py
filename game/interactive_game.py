@@ -3,8 +3,6 @@ from bridge_core_python.core import Game, GameStage
 from bridge_core_python.cards import Card, Rank, Suit as CardSuit
 import pprint
 
-from bridge_core_python.player import PlayerDirection
-
 str_to_suit = {
     "C": Suit.CLUBS,
     "D": Suit.DIAMONDS,
@@ -146,10 +144,8 @@ def run():
     game = Game(seed=0)
     pp = pprint.PrettyPrinter(depth=10, sort_dicts=False)
 
-    print(f"{RED}[INFO] You can change the seed in game/interactive_game.py{RESET}")
-    print(
-        f"{RED}[INFO] You can disable debug observation info in game/interactive_game.py{RESET}"
-    )
+    print(ct("[INFO] You can change the seed in game/interactive_game.py", RED))
+    print(ct("[INFO] You can disable debug observation info in game/interactive_game.py", RED))
     print()
 
     if DEBUG:
