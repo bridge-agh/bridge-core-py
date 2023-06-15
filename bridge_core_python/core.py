@@ -99,7 +99,6 @@ class Game:
 
         return winning_player
 
-    # TODO
     def actions(self):
         if self.stage == GameStage.BIDDING:
             if self.bid is None:
@@ -115,20 +114,20 @@ class Game:
                     or (trick == self.bid.tricks and suit > self.bid.suit)
                 ]
         elif self.stage == GameStage.PLAYING:
-            # jezeli mamy karty do koloru
-            if any(
-                card.suit == self.bid.suit
-                for card in self.players[self.current_player].cards
-            ):
-                return [
-                    card
+            if self.round_player != self.current_player:
+                # if we have a card to the suit of the bid
+                if any(
+                    card.suit == self.round_cards[0].suit
                     for card in self.players[self.current_player].cards
-                    if card.suit == self.bid.suit
-                ]
+                ):
+                    return [
+                        card
+                        for card in self.players[self.current_player].cards
+                        if card.suit == self.round_cards[0].suit
+                    ]
 
-            # jezeli nie mamy karty do koloru
-            else:
-                return self.players[self.current_player].cards
+            # if first card of the round or no cards to the suit of the bid
+            return self.players[self.current_player].cards
 
     def step(self, action: Union[Card, TrickBid, SpecialBid]):
         if self.stage == GameStage.BIDDING:

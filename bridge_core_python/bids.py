@@ -11,6 +11,9 @@ class Suit(AutoEnum):
 
     def __eq__(self, other: "Suit") -> bool:
         return self.value == other.value
+    
+    def __lt__(self, other: "Suit") -> bool:
+        return self.value < other.value
 
 
 class Tricks(AutoEnum):
@@ -25,6 +28,9 @@ class Tricks(AutoEnum):
     def __init__(self, display: str):
         super().__init__(display)
         self.tricks = int(display) + 6
+    
+    def __lt__(self, other: "Tricks") -> bool:
+        return self.tricks < other.tricks
 
 
 class SpecialBid(AutoEnum):

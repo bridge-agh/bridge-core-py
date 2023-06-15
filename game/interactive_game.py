@@ -3,6 +3,8 @@ from bridge_core_python.core import Game, GameStage
 from bridge_core_python.cards import Card, Rank, Suit as CardSuit
 import pprint
 
+from bridge_core_python.player import PlayerDirection
+
 str_to_suit = {
     "C": Suit.CLUBS,
     "D": Suit.DIAMONDS,
@@ -78,52 +80,124 @@ def string_to_card(str: str):
         raise ValueError("Invalid card string")
 
 
+def game_observation(game: Game):
+    print()
+    print("-" * 80)
+    print()
+    print(f"[{ct(game.stage, ORANGE)}]")
+    print(f"Current player: {ct(game.current_player, BLUE)}")
+    print()
+
+    if game.stage == GameStage.BIDDING:
+        print(f"Current deal: {ct(game.bid, ORANGE)}")
+        print(f"Current multiplier: {ct(game.multiplier, GREEN)}")
+        print(f"Bid history: {ct(game.bid_history, GREEN)}")
+        print(f"Current declarer: {ct(game.declarer, BLUE)}")
+
+    if game.stage == GameStage.PLAYING:
+        print(f"Deal: {ct(game.bid, ORANGE)}")
+        print(
+            f"NS tricks: {ct(len(game.NS_tricks), BLUE)} | EW tricks: {ct(len(game.EW_tricks), BLUE)}"
+        )
+        print(f"Round started by: {ct(game.round_player, BLUE)}")
+        print()
+
+        if game.is_dummy_showing_cards:
+            print(f"Dummy: {ct(game.declarer, BLUE)}")
+            print(f"Dummy cards: {ct(game.players[game.declarer].cards, GREEN)}")
+            print()
+        
+        print(f"Current trick: {ct(game.round_cards, GREEN)}")
+        print(
+            f"Current trick winner: {ct(game.trick_check() if game.current_player != game.round_player else None, ORANGE)}"
+        )
+
+    if game.stage == GameStage.SCORING:
+        print(
+            f"NS tricks: {ct(len(game.NS_tricks), BLUE)} | EW tricks: {ct(len(game.EW_tricks), BLUE)}"
+        )
+        
+        declarer = game.declarer
+        if len(game.tricks[declarer]) >= game.bid.tricks.tricks:
+            print(f"{ct(str(declarer) + str(declarer.next().next()), ORANGE)} won the contract")
+        else:
+            print(f"{declarer}{declarer.next().next()} lost the contract")
+        
+        return
+
+    print()
+    print(f"Your actions: {ct(game.actions(), GREEN)}")
+
+
+def ct(text, color):
+    return f"{color}{text}{RESET}"
+
+
 RED = "\33[91m"
+ORANGE = "\33[33m"
+GREEN = "\33[92m"
+BLUE = "\33[94m"
 RESET = "\33[0m"
+
+DEBUG = False
 
 
 def run():
     game = Game(seed=0)
-
-    print(f"{RED}[INFO] You can change the seed in game/game.py{RESET}")
     pp = pprint.PrettyPrinter(depth=10, sort_dicts=False)
 
-    pp.pprint(game.game_observation())
+    print(f"{RED}[INFO] You can change the seed in game/interactive_game.py{RESET}")
+    print(
+        f"{RED}[INFO] You can disable debug observation info in game/interactive_game.py{RESET}"
+    )
+    print()
+
+    if DEBUG:
+        pp.pprint(game.game_observation())
 
     # bidding
     while game.stage == GameStage.BIDDING:
-        pp.pprint(game.player_observation(game.current_player))
+        if DEBUG:
+            pp.pprint(game.player_observation(game.current_player))
+
+        game_observation(game)
 
         try:
             bid_input = input(f"{game.current_player}: ")
             bid = string_to_bid(bid_input)
         except ValueError as e:
-            print(e)
+            print(ct(e, RED))
             continue
 
         try:
             game.step(bid)
         except ValueError as e:
-            print(e)
+            print(ct(e, RED))
             continue
 
     # playing
     while game.stage == GameStage.PLAYING:
-        pp.pprint(game.player_observation(game.current_player))
+        if DEBUG:
+            pp.pprint(game.player_observation(game.current_player))
+
+        game_observation(game)
 
         try:
             card_input = input(f"{game.current_player}: ")
             card = string_to_card(card_input)
         except ValueError as e:
-            print(e)
+            print(ct(e, RED))
             continue
 
         try:
             game.step(card)
         except ValueError as e:
-            print(e)
+            print(ct(e, RED))
             continue
 
     # scoring
     if game.stage == GameStage.SCORING:
-        pp.pprint(game.game_observation())
+        if DEBUG:
+            pp.pprint(game.game_observation())
+        
+        game_observation(game)
