@@ -1,4 +1,4 @@
-from bridge_core_python.auto_enum import AutoEnum
+from bridge_core_py.auto_enum import AutoEnum
 
 
 class Suit(AutoEnum):

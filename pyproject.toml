@@ -1,18 +1,24 @@
 [tool.poetry]
-name = "bridge-core-python"
+name = "bridge-core-py"
 version = "0.1.0"
 description = ""
-authors = ["Szymon Idec <szymon.idec@protonmail.com>"]
+authors = [
+    "Szymon Idec <szymon.idec@protonmail.com>",
+    "Jakub Karbowski <carbon225@proton.me>"
+]
 readme = "README.md"
-packages = [{include = "bridge_core_python"}]
+packages = [{include = "bridge_core_py"}]
+
 
 [tool.poetry.dependencies]
-python = "^3.10"
-numpy = "^1.24.3"
+python = ">=3.10,<3.11"
+numpy = "^1.20"
 
 
 [tool.poetry.group.dev.dependencies]
-pytest = "^7.3.1"
+pytest = "^7.4.0"
+ruff = "^0.0.284"
+
 
 [build-system]
 requires = ["poetry-core"]

@@ -1,6 +1,6 @@
 import pytest
-from bridge_core_python.bids import SpecialBid, Suit, TrickBid, Tricks
-from bridge_core_python.core import Game, GameStage
+from bridge_core_py.bids import SpecialBid, Suit, TrickBid, Tricks
+from bridge_core_py.core import Game, GameStage
 
 
 def test_game_init():

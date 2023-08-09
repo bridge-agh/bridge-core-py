@@ -1,5 +1,6 @@
-from bridge_core_python.bids import SpecialBid, TrickBid, Suit, Tricks, is_legal
-from bridge_core_python.cards import Suit as CardSuit
+from bridge_core_py.bids import SpecialBid, TrickBid, Suit, Tricks, is_legal
+from bridge_core_py.cards import Suit as CardSuit
+
 
 def test_tricks_value():
     assert Tricks.ONE.tricks == 7

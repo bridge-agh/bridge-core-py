@@ -1,7 +1,8 @@
-from bridge_core_python.bids import SpecialBid, Suit, TrickBid, Tricks
-from bridge_core_python.core import Game, GameStage
-from bridge_core_python.cards import Card, Rank, Suit as CardSuit
+from bridge_core_py.bids import SpecialBid, Suit, TrickBid, Tricks
+from bridge_core_py.core import Game, GameStage
+from bridge_core_py.cards import Card, Rank, Suit as CardSuit
 import pprint
+
 
 str_to_suit = {
     "C": Suit.CLUBS,
@@ -95,7 +96,8 @@ def game_observation(game: Game):
     if game.stage == GameStage.PLAYING:
         print(f"Deal: {ct(game.bid, ORANGE)}")
         print(
-            f"NS tricks: {ct(len(game.NS_tricks), BLUE)} | EW tricks: {ct(len(game.EW_tricks), BLUE)}"
+            f"NS tricks: {ct(len(game.NS_tricks), BLUE)} | "
+             "EW tricks: {ct(len(game.EW_tricks), BLUE)}"
         )
         print(f"Round started by: {ct(game.round_player, BLUE)}")
         print()
@@ -112,7 +114,8 @@ def game_observation(game: Game):
 
     if game.stage == GameStage.SCORING:
         print(
-            f"NS tricks: {ct(len(game.NS_tricks), BLUE)} | EW tricks: {ct(len(game.EW_tricks), BLUE)}"
+            f"NS tricks: {ct(len(game.NS_tricks), BLUE)} | "
+             "EW tricks: {ct(len(game.EW_tricks), BLUE)}"
         )
         
         declarer = game.declarer

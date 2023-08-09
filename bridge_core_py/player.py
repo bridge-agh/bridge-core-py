@@ -1,5 +1,5 @@
-from bridge_core_python.auto_enum import AutoEnum
-from bridge_core_python.cards import Card
+from bridge_core_py.auto_enum import AutoEnum
+from bridge_core_py.cards import Card
 
 
 class PlayerDirection(AutoEnum):
@@ -22,5 +22,3 @@ class Player:
 
     def __str__(self) -> str:
         return f"{', '.join([str(card) for card in self.cards])}"
-
-

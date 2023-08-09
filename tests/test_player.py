@@ -1,4 +1,4 @@
-from bridge_core_python.player import PlayerDirection
+from bridge_core_py.player import PlayerDirection
 
 
 def test_next():

@@ -1,5 +1,5 @@
 from typing import Union
-from bridge_core_python.auto_enum import AutoEnum
+from bridge_core_py.auto_enum import AutoEnum
 
 
 class Suit(AutoEnum):
@@ -11,7 +11,7 @@ class Suit(AutoEnum):
 
     def __eq__(self, other: "Suit") -> bool:
         return self.value == other.value
-    
+
     def __lt__(self, other: "Suit") -> bool:
         return self.value < other.value
 
@@ -28,7 +28,7 @@ class Tricks(AutoEnum):
     def __init__(self, display: str):
         super().__init__(display)
         self.tricks = int(display) + 6
-    
+
     def __lt__(self, other: "Tricks") -> bool:
         return self.tricks < other.tricks
 
@@ -45,11 +45,11 @@ class TrickBid:
 
     def __str__(self) -> str:
         return f"{self.tricks}{self.suit}"
-    
+
     def __eq__(self, other: object) -> bool:
-        if not isinstance(other, TrickBid): return False
+        if not isinstance(other, TrickBid):
+            return False
         return self.suit == other.suit and self.tricks == other.tricks
-        
 
     def __lt__(self, other: "TrickBid") -> bool:
         if self.tricks.tricks < other.tricks.tricks:
@@ -58,9 +58,6 @@ class TrickBid:
             return self.suit.value < other.suit.value
         else:
             return False
-        
-    def __str__(self) -> str:
-        return f"{self.tricks}{self.suit}"
 
     def __repr__(self) -> str:
         return self.__str__()

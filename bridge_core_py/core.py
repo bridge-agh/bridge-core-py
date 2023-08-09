@@ -1,8 +1,8 @@
 from typing import Union
-from bridge_core_python.auto_enum import AutoEnum
-from bridge_core_python.cards import Card, Rank, Suit as CardSuit
-from bridge_core_python.bids import Suit, TrickBid, SpecialBid, Tricks, is_legal
-from bridge_core_python.player import Player, PlayerDirection
+from bridge_core_py.auto_enum import AutoEnum
+from bridge_core_py.cards import Card, Rank, Suit as CardSuit
+from bridge_core_py.bids import Suit, TrickBid, SpecialBid, Tricks, is_legal
+from bridge_core_py.player import Player, PlayerDirection
 import numpy as np
 
 
@@ -56,7 +56,7 @@ class Game:
 
     def card_check(self, card: Card):
         # card must be in player's hand
-        if not card in self.players[self.current_player].cards:
+        if card not in self.players[self.current_player].cards:
             return False
 
         # first card can be any card
@@ -67,7 +67,8 @@ class Game:
         elif self.round_cards[0].suit == card.suit:
             return True
 
-        # if player has no cards in the same suit as the first card, any card can be played
+        # if player has no cards in the same suit as the first card
+        # then any card can be played
         elif not any(
             self.round_cards[0].suit == cardi.suit
             for cardi in self.players[self.current_player].cards
@@ -88,7 +89,8 @@ class Game:
                     winning_card = card
                     winning_player_index = i + 1
 
-            # if card is trump then the winning card is not trump because of the previous if
+            # if card is trump then the winning card is not trump
+            # because of the previous if
             elif card.suit == self.bid.suit:
                 winning_card = card
                 winning_player_index = i + 1

@@ -1,8 +1,7 @@
-
-from bridge_core_python.bids import SpecialBid, Suit, TrickBid, Tricks
-from bridge_core_python.cards import Card, Rank, Suit as CardSuit
-from bridge_core_python.core import Game, GameStage
-from bridge_core_python.player import PlayerDirection
+from bridge_core_py.bids import SpecialBid, Suit, TrickBid, Tricks
+from bridge_core_py.cards import Card, Rank, Suit as CardSuit
+from bridge_core_py.core import Game, GameStage
+from bridge_core_py.player import PlayerDirection
 
 
 def test_basic_game():
