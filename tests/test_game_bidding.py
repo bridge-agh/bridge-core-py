@@ -127,3 +127,34 @@ def test_illegal_bidding_lower_bid2():
         game.step(TrickBid(Suit.CLUBS, Tricks.TWO))
         game.step(TrickBid(Suit.HEARTS, Tricks.THREE))
         game.step(TrickBid(Suit.CLUBS, Tricks.TWO))
+
+
+def test_illegal_bidding_double():
+    game = Game()
+
+    with pytest.raises(ValueError):
+        game.step(SpecialBid.PASS)
+        game.step(SpecialBid.DOUBLE)
+
+def test_illegal_bidding_double2():
+    game = Game()
+
+    with pytest.raises(ValueError):
+        game.step(TrickBid(Suit.CLUBS, Tricks.SEVEN))
+        game.step(SpecialBid.PASS)
+        game.step(SpecialBid.DOUBLE)
+
+
+def test_illegal_bidding_redouble():
+    game = Game()
+
+    with pytest.raises(ValueError):
+        game.step(SpecialBid.REDOUBLE)
+
+    with pytest.raises(ValueError):
+        game.step(TrickBid(Suit.CLUBS, Tricks.SEVEN))
+        game.step(SpecialBid.REDOUBLE)
+
+    with pytest.raises(ValueError):
+        game.step(SpecialBid.PASS)
+        game.step(SpecialBid.REDOUBLE)

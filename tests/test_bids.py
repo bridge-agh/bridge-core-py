@@ -35,6 +35,7 @@ def test_islegal():
     assert is_legal(TrickBid(Suit.HEARTS, Tricks.SEVEN), [TrickBid(Suit.HEARTS, Tricks.SEVEN)],  TrickBid(Suit.SPADES, Tricks.SEVEN))
 
     assert is_legal(TrickBid(Suit.SPADES, Tricks.SEVEN), [TrickBid(Suit.SPADES, Tricks.SEVEN)],  SpecialBid.DOUBLE)
+    assert is_legal(TrickBid(Suit.SPADES, Tricks.SEVEN), [TrickBid(Suit.SPADES, Tricks.SEVEN), SpecialBid.PASS, SpecialBid.PASS],  SpecialBid.DOUBLE)
     assert not is_legal(None, [],  SpecialBid.DOUBLE)
     assert not is_legal(None, [SpecialBid.PASS],  SpecialBid.DOUBLE)
     assert not is_legal(TrickBid(Suit.SPADES, Tricks.SEVEN), [TrickBid(Suit.SPADES, Tricks.SEVEN), SpecialBid.PASS],  SpecialBid.DOUBLE)
