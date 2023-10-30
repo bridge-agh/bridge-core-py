@@ -103,8 +103,8 @@ def game_observation(game: Game):
         print()
 
         if game.is_dummy_showing_cards:
-            print(f"Dummy: {ct(game.declarer, BLUE)}")
-            print(f"Dummy cards: {ct(game.players[game.declarer].cards, GREEN)}")
+            print(f"Dummy: {ct(game.declarer.opposite(), BLUE)}")
+            print(f"Dummy cards: {ct(game.players[game.declarer.opposite()].cards, GREEN)}")
             print()
         
         print(f"Current trick: {ct(game.round_cards, GREEN)}")

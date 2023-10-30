@@ -28,11 +28,21 @@ def test_double():
 
     game.step(TrickBid(Suit.CLUBS, Tricks.TWO))
     game.step(SpecialBid.DOUBLE)
-    game.step(SpecialBid.PASS)
+
+    assert game.stage == GameStage.BIDDING
+    assert game.multiplier == 2
+
+
+def test_redouble():
+    game = Game()
+
+    game.step(TrickBid(Suit.CLUBS, Tricks.TWO))
     game.step(SpecialBid.DOUBLE)
+    game.step(SpecialBid.REDOUBLE)
 
     assert game.stage == GameStage.BIDDING
     assert game.multiplier == 4
+
 
 def test_reset_double():
     game = Game()
@@ -42,6 +52,18 @@ def test_reset_double():
     game.step(SpecialBid.PASS)
     game.step(TrickBid(Suit.CLUBS, Tricks.THREE))
     
+    assert game.stage == GameStage.BIDDING
+    assert game.multiplier == 1
+
+
+def test_reset_redouble():
+    game = Game()
+
+    game.step(TrickBid(Suit.CLUBS, Tricks.TWO))
+    game.step(SpecialBid.DOUBLE)
+    game.step(SpecialBid.REDOUBLE)
+    game.step(TrickBid(Suit.CLUBS, Tricks.THREE))
+
     assert game.stage == GameStage.BIDDING
     assert game.multiplier == 1
 
@@ -65,14 +87,13 @@ def test_basic_bidding2():
     game.step(TrickBid(Suit.SPADES, Tricks.SEVEN))
     game.step(TrickBid(Suit.NO_TRUMP, Tricks.SEVEN))
     game.step(SpecialBid.DOUBLE)
-    game.step(SpecialBid.DOUBLE)
-    game.step(SpecialBid.DOUBLE)
-    game.step(SpecialBid.DOUBLE)
+    game.step(SpecialBid.REDOUBLE)
     game.step(SpecialBid.PASS)
     game.step(SpecialBid.PASS)
     game.step(SpecialBid.PASS)
 
     assert game.stage == GameStage.PLAYING
+    assert game.multiplier == 4
 
 
 def test_illegal_bidding_same_bid1():

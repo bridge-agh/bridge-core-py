@@ -108,7 +108,7 @@ class Game:
                     TrickBid(suit, trick) for suit in Suit for trick in Tricks
                 ]
             else:
-                return [SpecialBid.PASS, SpecialBid.DOUBLE] + [
+                return [bid for bid in SpecialBid if is_legal(self.bid, self.bid_history, bid)] + [
                     TrickBid(suit, trick)
                     for suit in Suit
                     for trick in Tricks
@@ -134,7 +134,7 @@ class Game:
     def step(self, action: Union[Card, TrickBid, SpecialBid]):
         if self.stage == GameStage.BIDDING:
             assert isinstance(action, (TrickBid, SpecialBid))
-            if not is_legal(self.bid, action):
+            if not is_legal(current_bid=self.bid, bid_history=self.bid_history, new_bid=action):
                 raise ValueError("Illegal bid")
 
             self.bid_history.append(action)
@@ -151,7 +151,7 @@ class Game:
                 bid == SpecialBid.PASS for bid in self.bid_history[-3:]
             ):
                 self.stage = GameStage.PLAYING
-                self.current_player = self.declarer.prev()
+                self.current_player = self.declarer.next()
                 self.round_player = self.current_player
                 return
 
@@ -162,10 +162,9 @@ class Game:
                 self.bid = action
                 self.declarer = self.current_player
                 self.multiplier = 1
-            # double current bid
-            elif action == SpecialBid.DOUBLE:
+            # double current bid or redouble doubled bid
+            elif action in [SpecialBid.DOUBLE, SpecialBid.REDOUBLE]:
                 self.multiplier *= 2
-
         elif self.stage == GameStage.PLAYING:
             assert isinstance(action, Card)
             if not self.card_check(action):
@@ -210,7 +209,7 @@ class Game:
             "game": {
                 "round_player": self.round_player,
                 "round_cards": self.round_cards,
-                "dummy": self.players[self.declarer.next()].cards
+                "dummy": self.players[self.declarer.opposite()].cards
                 if self.is_dummy_showing_cards
                 else [],
                 "tricks": {

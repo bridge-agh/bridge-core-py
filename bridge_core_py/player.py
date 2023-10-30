@@ -14,9 +14,12 @@ class PlayerDirection(AutoEnum):
     def prev(self):
         return PlayerDirection((self.value - 1) % len(PlayerDirection))
 
+    def opposite(self):
+        return self.next().next()
+
 
 class Player:
-    
+
     def __init__(self, cards: list[Card]):
         self.cards = cards
 

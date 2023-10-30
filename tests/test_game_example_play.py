@@ -13,10 +13,10 @@ def test_basic_game():
     game.step(SpecialBid.PASS)
 
     # first trick (NS)
-    game.step(Card(CardSuit.SPADES, Rank.ACE)) # N
-    game.step(Card(CardSuit.SPADES, Rank.THREE)) # E
     game.step(Card(CardSuit.SPADES, Rank.FIVE)) # S
     game.step(Card(CardSuit.SPADES, Rank.SIX)) # W
+    game.step(Card(CardSuit.SPADES, Rank.ACE)) # N
+    game.step(Card(CardSuit.SPADES, Rank.THREE)) # E
 
     assert game.current_player == PlayerDirection.NORTH
 
@@ -120,13 +120,13 @@ def test_basic_game():
     assert len(game.NS_tricks) == 5
     assert len(game.EW_tricks) == 8
 
-    assert game.NS_tricks[0][0] == PlayerDirection.NORTH
+    assert game.NS_tricks[0][0] == PlayerDirection.SOUTH
     assert game.NS_tricks[0][1] == PlayerDirection.NORTH
     assert game.NS_tricks[0][2] == [
-        Card(CardSuit.SPADES, Rank.ACE),
-        Card(CardSuit.SPADES, Rank.THREE),
         Card(CardSuit.SPADES, Rank.FIVE),
         Card(CardSuit.SPADES, Rank.SIX),
+        Card(CardSuit.SPADES, Rank.ACE),
+        Card(CardSuit.SPADES, Rank.THREE),
     ]
 
     assert game.NS_tricks[1][0] == PlayerDirection.WEST
