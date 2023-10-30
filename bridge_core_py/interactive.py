@@ -52,7 +52,7 @@ def string_to_bid(str: str):
 
     if str[0] in "1234567":
         type = TrickBid
-    elif str[0] in "DP":
+    elif str[0] in "DPR":
         type = SpecialBid
 
     if type == TrickBid:
@@ -64,6 +64,8 @@ def string_to_bid(str: str):
             return SpecialBid.DOUBLE
         elif str == "P":
             return SpecialBid.PASS
+        elif str == "R":
+            return SpecialBid.REDOUBLE
     else:
         raise ValueError("Invalid bid string")
 
