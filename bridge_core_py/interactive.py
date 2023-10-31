@@ -1,8 +1,9 @@
-from bridge_core_py.bids import SpecialBid, Suit, TrickBid, Tricks
-from bridge_core_py.core import Game, GameStage
-from bridge_core_py.cards import Card, Rank, Suit as CardSuit
 import pprint
 
+from bridge_core_py.bids import SpecialBid, Suit, TrickBid, Tricks
+from bridge_core_py.cards import Card, Rank
+from bridge_core_py.cards import Suit as CardSuit
+from bridge_core_py.core import Game, GameStage
 
 str_to_suit = {
     "C": Suit.CLUBS,
@@ -96,8 +97,7 @@ def game_observation(game: Game):
     if game.stage == GameStage.PLAYING:
         print(f"Deal: {ct(game.bid, ORANGE)}")
         print(
-            f"NS tricks: {ct(len(game.NS_tricks), BLUE)} | "
-             "EW tricks: {ct(len(game.EW_tricks), BLUE)}"
+            f"NS tricks: {ct(len(game.NS_tricks), BLUE)} | EW tricks: {ct(len(game.EW_tricks), BLUE)}"
         )
         print(f"Round started by: {ct(game.round_player, BLUE)}")
         print()
@@ -106,7 +106,7 @@ def game_observation(game: Game):
             print(f"Dummy: {ct(game.declarer, BLUE)}")
             print(f"Dummy cards: {ct(game.players[game.declarer].cards, GREEN)}")
             print()
-        
+
         print(f"Current trick: {ct(game.round_cards, GREEN)}")
         print(
             f"Current trick winner: {ct(game.trick_check() if game.current_player != game.round_player else None, ORANGE)}"
@@ -114,16 +114,17 @@ def game_observation(game: Game):
 
     if game.stage == GameStage.SCORING:
         print(
-            f"NS tricks: {ct(len(game.NS_tricks), BLUE)} | "
-             "EW tricks: {ct(len(game.EW_tricks), BLUE)}"
+            f"NS tricks: {ct(len(game.NS_tricks), BLUE)} | EW tricks: {ct(len(game.EW_tricks), BLUE)}"
         )
-        
+
         declarer = game.declarer
         if len(game.tricks[declarer]) >= game.bid.tricks.tricks:
-            print(f"{ct(str(declarer) + str(declarer.next().next()), ORANGE)} won the contract")
+            print(
+                f"{ct(str(declarer) + str(declarer.next().next()), ORANGE)} won the contract"
+            )
         else:
             print(f"{declarer}{declarer.next().next()} lost the contract")
-        
+
         return
 
     print()
@@ -148,7 +149,12 @@ def run():
     pp = pprint.PrettyPrinter(depth=10, sort_dicts=False)
 
     print(ct("[INFO] You can change the seed in game/interactive_game.py", RED))
-    print(ct("[INFO] You can disable debug observation info in game/interactive_game.py", RED))
+    print(
+        ct(
+            "[INFO] You can disable debug observation info in game/interactive_game.py",
+            RED,
+        )
+    )
     print()
 
     if DEBUG:
@@ -198,5 +204,5 @@ def run():
     if game.stage == GameStage.SCORING:
         if DEBUG:
             pp.pprint(game.game_observation())
-        
+
         game_observation(game)
