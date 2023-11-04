@@ -76,10 +76,6 @@ def is_legal(current_bid: TrickBid, bid_history: list[Union[TrickBid, SpecialBid
                     bid_history[-2:] == [SpecialBid.PASS, SpecialBid.PASS] and isinstance(bid_history[-3], TrickBid)):
                 return True
         elif new_bid == SpecialBid.REDOUBLE and n_bids > 0:
-            for i in range(0, n_bids - 1):
-                # REDOUBLE was already used by player's team
-                if bid_history[n_bids - i - 1] == SpecialBid.REDOUBLE and i % 2 != 0:
-                    return False
             # DOUBLE was used by opponent's team
             if bid_history[-1] == SpecialBid.DOUBLE or (n_bids >= 3 and
                     bid_history[-2:] == [SpecialBid.PASS, SpecialBid.PASS] and bid_history[-3] == SpecialBid.DOUBLE):

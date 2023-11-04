@@ -44,13 +44,13 @@ def test_islegal():
 
     assert is_legal(TrickBid(Suit.SPADES, Tricks.SEVEN), [TrickBid(Suit.SPADES, Tricks.SEVEN), SpecialBid.DOUBLE],  SpecialBid.REDOUBLE)
     assert is_legal(TrickBid(Suit.SPADES, Tricks.SEVEN), [TrickBid(Suit.SPADES, Tricks.SEVEN), SpecialBid.DOUBLE, SpecialBid.PASS, SpecialBid.PASS],  SpecialBid.REDOUBLE)
+    assert is_legal(TrickBid(Suit.SPADES, Tricks.SEVEN), [TrickBid(Suit.SPADES, Tricks.SEVEN), SpecialBid.DOUBLE, SpecialBid.PASS, TrickBid(Suit.NO_TRUMP, Tricks.SEVEN), SpecialBid.DOUBLE],  SpecialBid.REDOUBLE)
 
     assert not is_legal(TrickBid(Suit.SPADES, Tricks.SEVEN), [TrickBid(Suit.SPADES, Tricks.SEVEN), SpecialBid.DOUBLE, SpecialBid.PASS, TrickBid(Suit.HEARTS, Tricks.FIVE)],  SpecialBid.REDOUBLE)
     assert not is_legal(TrickBid(Suit.SPADES, Tricks.SEVEN), [TrickBid(Suit.SPADES, Tricks.SEVEN), SpecialBid.DOUBLE, SpecialBid.PASS],  SpecialBid.REDOUBLE)
     assert not is_legal(TrickBid(Suit.SPADES, Tricks.SEVEN), [TrickBid(Suit.SPADES, Tricks.SEVEN)],  SpecialBid.REDOUBLE)
     assert not is_legal(None, [], SpecialBid.REDOUBLE)
     assert not is_legal(None, [SpecialBid.PASS], SpecialBid.REDOUBLE)
-    assert not is_legal(TrickBid(Suit.SPADES, Tricks.SEVEN), [TrickBid(Suit.SPADES, Tricks.SEVEN), SpecialBid.DOUBLE, SpecialBid.REDOUBLE, SpecialBid.PASS, TrickBid(Suit.HEARTS, Tricks.FIVE), SpecialBid.DOUBLE],  SpecialBid.REDOUBLE)
 
 
 def test_card_bids_suit():
