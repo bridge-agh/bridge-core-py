@@ -7,7 +7,6 @@ from bridge_core_py.player import PlayerDirection
 
 def mock_game(seed: int = 42):
     game = Game(seed=seed)
-
     game.step(TrickBid(Suit.CLUBS, Tricks.ONE))
     game.step(SpecialBid.PASS)
     game.step(SpecialBid.PASS)
@@ -20,7 +19,7 @@ def test_game_init():
     game = mock_game()
 
     assert game.stage == GameStage.PLAYING
-    assert game.current_player == game.declarer.prev()
+    assert game.current_player == game.declarer.next()
     assert game.bid == TrickBid(Suit.CLUBS, Tricks.ONE)
 
     cards = set()
@@ -33,12 +32,12 @@ def test_game_init():
 def test_same_suit():
     game = mock_game()
 
-    assert game.current_player == PlayerDirection.NORTH
+    assert game.current_player == PlayerDirection.SOUTH
 
-    game.step(Card(CardSuit.DIAMONDS, Rank.SIX))
-    game.step(Card(CardSuit.DIAMONDS, Rank.KING))
     game.step(Card(CardSuit.DIAMONDS, Rank.JACK))
     game.step(Card(CardSuit.DIAMONDS, Rank.TWO))
+    game.step(Card(CardSuit.DIAMONDS, Rank.SIX))
+    game.step(Card(CardSuit.DIAMONDS, Rank.KING))
 
     assert game.current_player == PlayerDirection.EAST
     assert len(game.EW_tricks) == 1
@@ -48,7 +47,7 @@ def test_same_suit():
 def test_same_suit_missing_card():
     game = mock_game()
 
-    assert game.current_player == PlayerDirection.NORTH
+    assert game.current_player == PlayerDirection.SOUTH
 
     with pytest.raises(ValueError):
         game.step(Card(CardSuit.DIAMONDS, Rank.SIX))
@@ -56,92 +55,90 @@ def test_same_suit_missing_card():
 
 
 def test_different_suit_no_trump():
-    game = mock_game(seed=0)
+    game = mock_game(seed=19)
 
     assert game.current_player == PlayerDirection.WEST
 
-    game.step(Card(CardSuit.HEARTS, Rank.FIVE))
-    game.step(Card(CardSuit.HEARTS, Rank.TEN))
-    game.step(Card(CardSuit.DIAMONDS, Rank.EIGHT))
-    game.step(Card(CardSuit.HEARTS, Rank.TWO))
-
-    assert game.current_player == PlayerDirection.NORTH
-    assert len(game.EW_tricks) == 0
-    assert len(game.NS_tricks) == 1
-
-
-def test_different_suit_no_trump_missing_card():
-    game = mock_game(seed=0)
-
-    assert game.current_player == PlayerDirection.WEST
-
-    with pytest.raises(ValueError):
-        game.step(Card(CardSuit.HEARTS, Rank.FIVE))
-        game.step(Card(CardSuit.HEARTS, Rank.TEN))
-        game.step(Card(CardSuit.SPADES, Rank.ACE))
-
-
-def test_different_suit_trump():
-    game = mock_game(seed=0)
-
-    assert game.current_player == PlayerDirection.WEST
-
-    game.step(Card(CardSuit.HEARTS, Rank.FIVE))
-    game.step(Card(CardSuit.HEARTS, Rank.TEN))
-    game.step(Card(CardSuit.CLUBS, Rank.THREE))
-    game.step(Card(CardSuit.HEARTS, Rank.TWO))
+    game.step(Card(CardSuit.DIAMONDS, Rank.FOUR))
+    game.step(Card(CardSuit.SPADES, Rank.KING))
+    game.step(Card(CardSuit.DIAMONDS, Rank.SIX))
+    game.step(Card(CardSuit.DIAMONDS, Rank.THREE))
 
     assert game.current_player == PlayerDirection.EAST
     assert len(game.EW_tricks) == 1
     assert len(game.NS_tricks) == 0
 
 
-def test_different_suit_trump_missing_card():
-    game = mock_game(seed=0)
+def test_different_suit_no_trump_missing_card():
+    game = mock_game(seed=19)
 
     assert game.current_player == PlayerDirection.WEST
 
     with pytest.raises(ValueError):
-        game.step(Card(CardSuit.HEARTS, Rank.FIVE))
-        game.step(Card(CardSuit.HEARTS, Rank.TEN))
+        game.step(Card(CardSuit.DIAMONDS, Rank.FOUR))
+        game.step(Card(CardSuit.CLUBS, Rank.ACE))
+
+
+def test_different_suit_trump():
+    game = mock_game(seed=19)
+
+    assert game.current_player == PlayerDirection.WEST
+
+    game.step(Card(CardSuit.DIAMONDS, Rank.FOUR))
+    game.step(Card(CardSuit.CLUBS, Rank.FIVE))
+    game.step(Card(CardSuit.DIAMONDS, Rank.SIX))
+    game.step(Card(CardSuit.DIAMONDS, Rank.THREE))
+
+    assert game.current_player == PlayerDirection.NORTH
+    assert len(game.EW_tricks) == 0
+    assert len(game.NS_tricks) == 1
+
+
+def test_different_suit_trump_missing_card():
+    game = mock_game(seed=19)
+
+    assert game.current_player == PlayerDirection.WEST
+
+    with pytest.raises(ValueError):
+        game.step(Card(CardSuit.DIAMONDS, Rank.FOUR))
         game.step(Card(CardSuit.CLUBS, Rank.ACE))
 
 
 def test_wrong_card():
     game = mock_game()
 
-    assert game.current_player == PlayerDirection.NORTH
+    assert game.current_player == PlayerDirection.SOUTH
 
     with pytest.raises(ValueError):
-        game.step(Card(CardSuit.HEARTS, Rank.FIVE))
-        game.step(Card(CardSuit.HEARTS, Rank.KING))
-        game.step(Card(CardSuit.DIAMONDS, Rank.ACE))  # has it, but suit is wrong
+        game.step(Card(CardSuit.HEARTS, Rank.FOUR))
+        game.step(Card(CardSuit.HEARTS, Rank.JACK))
+        game.step(Card(CardSuit.SPADES, Rank.QUEEN))  # has it, but suit is wrong
 
 
 def test_trick_first_no_trump_winning_no_trump():
-    game = mock_game(seed=0)
+    game = mock_game(seed=19)
 
     assert game.current_player == PlayerDirection.WEST
 
-    game.step(Card(CardSuit.SPADES, Rank.ACE))
-    game.step(Card(CardSuit.HEARTS, Rank.THREE))
-    game.step(Card(CardSuit.SPADES, Rank.QUEEN))
+    game.step(Card(CardSuit.DIAMONDS, Rank.FOUR))
     game.step(Card(CardSuit.SPADES, Rank.KING))
+    game.step(Card(CardSuit.DIAMONDS, Rank.ACE))
+    game.step(Card(CardSuit.DIAMONDS, Rank.THREE))
 
-    assert game.current_player == PlayerDirection.WEST
+    assert game.current_player == PlayerDirection.EAST
     assert len(game.EW_tricks) == 1
     assert len(game.NS_tricks) == 0
 
 
 def test_trick_first_no_trump_winning_trump():
-    game = mock_game(seed=0)
+    game = mock_game(seed=19)
 
     assert game.current_player == PlayerDirection.WEST
 
-    game.step(Card(CardSuit.SPADES, Rank.ACE))
-    game.step(Card(CardSuit.CLUBS, Rank.QUEEN))
-    game.step(Card(CardSuit.SPADES, Rank.QUEEN))
-    game.step(Card(CardSuit.SPADES, Rank.KING))
+    game.step(Card(CardSuit.DIAMONDS, Rank.FOUR))
+    game.step(Card(CardSuit.CLUBS, Rank.FIVE))
+    game.step(Card(CardSuit.DIAMONDS, Rank.SIX))
+    game.step(Card(CardSuit.DIAMONDS, Rank.THREE))
 
     assert game.current_player == PlayerDirection.NORTH
     assert len(game.EW_tricks) == 0
@@ -149,14 +146,14 @@ def test_trick_first_no_trump_winning_trump():
 
 
 def test_trick_first_trump_winning_trump():
-    game = mock_game(seed=0)
+    game = mock_game(seed=19)
 
     assert game.current_player == PlayerDirection.WEST
 
-    game.step(Card(CardSuit.CLUBS, Rank.SEVEN))
-    game.step(Card(CardSuit.CLUBS, Rank.KING))
+    game.step(Card(CardSuit.CLUBS, Rank.TEN))
+    game.step(Card(CardSuit.CLUBS, Rank.QUEEN))
+    game.step(Card(CardSuit.CLUBS, Rank.SIX))
     game.step(Card(CardSuit.CLUBS, Rank.THREE))
-    game.step(Card(CardSuit.CLUBS, Rank.TWO))
 
     assert game.current_player == PlayerDirection.NORTH
     assert len(game.EW_tricks) == 0

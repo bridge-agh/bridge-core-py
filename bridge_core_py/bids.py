@@ -36,6 +36,7 @@ class Tricks(AutoEnum):
 class SpecialBid(AutoEnum):
     PASS = "PASS"
     DOUBLE = "DOUBLE"
+    REDOUBLE = "REDOUBLE"
 
 
 class TrickBid:
@@ -63,11 +64,23 @@ class TrickBid:
         return self.__str__()
 
 
-def is_legal(current_bid: TrickBid, new_bid: Union[TrickBid, SpecialBid]) -> bool:
+def is_legal(current_bid: TrickBid, bid_history: list[Union[TrickBid, SpecialBid]],
+             new_bid: Union[TrickBid, SpecialBid]) -> bool:
     if isinstance(new_bid, SpecialBid):
-        if current_bid is None and new_bid == SpecialBid.DOUBLE:
-            return False
-        return True
+        if new_bid == SpecialBid.PASS:
+            return True
+        n_bids = len(bid_history)
+        if new_bid == SpecialBid.DOUBLE and n_bids > 0:
+            # TrickBid was played by opponent's team
+            if isinstance(bid_history[-1], TrickBid) or (n_bids >= 3 and
+                    bid_history[-2:] == [SpecialBid.PASS, SpecialBid.PASS] and isinstance(bid_history[-3], TrickBid)):
+                return True
+        elif new_bid == SpecialBid.REDOUBLE and n_bids > 0:
+            # DOUBLE was used by opponent's team
+            if bid_history[-1] == SpecialBid.DOUBLE or (n_bids >= 3 and
+                    bid_history[-2:] == [SpecialBid.PASS, SpecialBid.PASS] and bid_history[-3] == SpecialBid.DOUBLE):
+                return True
+        return False
     else:
         if current_bid is None:
             return True
