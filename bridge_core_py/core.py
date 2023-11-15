@@ -1,9 +1,12 @@
 from typing import Union
-from bridge_core_py.auto_enum import AutoEnum
-from bridge_core_py.cards import Card, Rank, Suit as CardSuit
-from bridge_core_py.bids import Suit, TrickBid, SpecialBid, Tricks, is_legal
-from bridge_core_py.player import Player, PlayerDirection
+
 import numpy as np
+
+from bridge_core_py.auto_enum import AutoEnum
+from bridge_core_py.bids import SpecialBid, Suit, TrickBid, Tricks, is_legal
+from bridge_core_py.cards import Card, Rank
+from bridge_core_py.cards import Suit as CardSuit
+from bridge_core_py.player import Player, PlayerDirection
 
 
 class GameStage(AutoEnum):
@@ -209,7 +212,11 @@ class Game:
             "game": {
                 "round_player": self.round_player,
                 "round_cards": self.round_cards,
-                "dummy": self.players[self.declarer.opposite()].cards
+                "dummy": (
+                    self.players[self.declarer].cards
+                    if player is self.declarer.next().next()
+                    else self.players[self.declarer.next().next()].cards
+                )
                 if self.is_dummy_showing_cards
                 else [],
                 "tricks": {
