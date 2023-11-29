@@ -18,7 +18,7 @@ def test_hands_init():
     game = mock_game(0)
 
     hands = game.hands_to_str()
-    assert hands == "E:Q863..J9865.8543 KJT95.K862.A.JT2 A742.975.432.A97 .AQJT43.KQT7.KQ6"
+    assert hands == "N:.AQJT43.KQT7.KQ6 Q863..J9865.8543 KJT95.K862.A.JT2 A742.975.432.A97"
 
 
 def test_hands_after_one_move():
@@ -26,7 +26,7 @@ def test_hands_after_one_move():
     game.step(Card(CardSuit.SPADES, Rank.QUEEN))
 
     hands = game.hands_to_str()
-    assert hands == "S:KJT95.K862.A.JT2 A742.975.432.A97 .AQJT43.KQT7.KQ6 863..J9865.8543"
+    assert hands == "N:.AQJT43.KQT7.KQ6 863..J9865.8543 KJT95.K862.A.JT2 A742.975.432.A97"
 
 
 def test_hands_after_one_round():

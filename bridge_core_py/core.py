@@ -256,15 +256,15 @@ class Game:
         }
 
     def hands_to_str(self):
-        hands_str = f"{self.current_player}:"
+        hands_str = f"{self.declarer}:"
         suits = [suit for suit in CardSuit][::-1]
         directions = [d for d in PlayerDirection]
-        i = directions.index(self.current_player)
+        i = directions.index(self.declarer)
         directions = directions[i:] + directions[:i]
         for direction in directions:
             player = self.players[direction]
             cards = player.cards[::-1]
-            print(direction, cards)
+            # print(direction, cards)
 
             current_suit_index = 0
             for card in cards:
