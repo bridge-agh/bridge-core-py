@@ -256,7 +256,7 @@ class Game:
         }
 
     def hands_to_str(self):
-        hands_str = f"{self.declarer}:"
+        hands_str = f"{self.first_dealer}:"
         suits = [suit for suit in CardSuit][::-1]
         directions = [d for d in PlayerDirection]
         i = directions.index(self.declarer)
