@@ -15,13 +15,17 @@ class GameStage(AutoEnum):
     SCORING = "SCORING"
 
 
+class AssistantAction:
+    pass
+
+
 class Game:
     def __init__(self, seed: int = 42):
-        rng = np.random.default_rng(seed=seed)
+        self.rng = np.random.default_rng(seed=seed)
 
         # shuffle deck
         deck = [Card(suit, rank) for suit in CardSuit for rank in Rank]
-        rng.shuffle(deck)
+        self.rng.shuffle(deck)
 
         # deal cards
         self.players = {
@@ -43,7 +47,7 @@ class Game:
         }
 
         # determine dealer
-        self.current_player = rng.choice(list(self.players.keys()))
+        self.current_player = self.rng.choice(list(self.players.keys()))
         self.first_dealer = self.current_player
 
         self.stage = GameStage.BIDDING
@@ -134,7 +138,11 @@ class Game:
             # if first card of the round or no cards to the suit of the bid
             return self.players[self.current_player].cards
 
-    def step(self, action: Union[Card, TrickBid, SpecialBid]):
+    def step(self, action: Union[Card, TrickBid, SpecialBid, AssistantAction]):
+        if isinstance(action, AssistantAction):
+            self.step(self.decide_with_assistant())
+            return
+
         if self.stage == GameStage.BIDDING:
             assert isinstance(action, (TrickBid, SpecialBid))
             if not is_legal(current_bid=self.bid, bid_history=self.bid_history, new_bid=action):
@@ -275,3 +283,12 @@ class Game:
             hands_str += " "
         hands_str = hands_str[:-1]
         return hands_str
+
+    def decide_with_assistant(self):
+        bid_length = len(self.bid_history)
+        if bid_length >= 6 and self.stage is GameStage.BIDDING:
+            action = SpecialBid.PASS
+        else:
+            actions = self.actions()
+            action = self.rng.choice(actions)
+        return action
