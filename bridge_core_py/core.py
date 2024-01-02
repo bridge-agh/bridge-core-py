@@ -252,4 +252,26 @@ class Game:
                 "W": self.players[PlayerDirection.WEST].cards,
                 "S": self.players[PlayerDirection.SOUTH].cards,
             },
+            "handsPBN": self.hands_to_str()
         }
+
+    def hands_to_str(self):
+        hands_str = f"{self.first_dealer}:"
+        suits = [suit for suit in CardSuit][::-1]
+        directions = [d for d in PlayerDirection]
+        i = directions.index(self.declarer)
+        directions = directions[i:] + directions[:i]
+        for direction in directions:
+            player = self.players[direction]
+            cards = player.cards[::-1]
+            # print(direction, cards)
+
+            current_suit_index = 0
+            for card in cards:
+                while card.suit != suits[current_suit_index]:
+                    current_suit_index += 1
+                    hands_str += "."
+                hands_str += card.rank.display
+            hands_str += " "
+        hands_str = hands_str[:-1]
+        return hands_str
