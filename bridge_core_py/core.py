@@ -7,6 +7,7 @@ from bridge_core_py.bids import SpecialBid, Suit, TrickBid, Tricks, is_legal
 from bridge_core_py.cards import Card, Rank
 from bridge_core_py.cards import Suit as CardSuit
 from bridge_core_py.player import Player, PlayerDirection
+from bridge_core_py.assistant import Assistant
 
 
 class GameStage(AutoEnum):
@@ -26,6 +27,8 @@ class Game:
         # shuffle deck
         deck = [Card(suit, rank) for suit in CardSuit for rank in Rank]
         self.rng.shuffle(deck)
+
+        self.assistant = Assistant()
 
         # deal cards
         self.players = {
@@ -285,10 +288,13 @@ class Game:
         return hands_str
 
     def decide_with_assistant(self):
-        bid_length = len(self.bid_history)
-        if bid_length >= 6 and self.stage is GameStage.BIDDING:
-            action = SpecialBid.PASS
+        if self.stage is GameStage.BIDDING:
+            bid_length = len(self.bid_history)
+            if bid_length >= 6:
+                return SpecialBid.PASS
+            else:
+                return self.assistant.get_bid_action(self.player_observation(self.current_player), self.actions())
         else:
             actions = self.actions()
             action = self.rng.choice(actions)
-        return action
+            return action
