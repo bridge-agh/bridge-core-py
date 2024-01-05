@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "bridge-core-py"
-version = "0.1.4"
+version = "0.1.5"
 description = ""
 authors = [
     "Szymon Idec <szymon.idec@protonmail.com>",

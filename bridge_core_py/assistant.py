@@ -3,11 +3,12 @@ import jax.numpy as jnp
 import haiku as hk
 import numpy as np
 import pickle
+import subprocess
 import os
 import chex
 import sys
 
-from bridge_core_py.core import Card, CardSuit, Rank, TrickBid, SpecialBid, Tricks, Suit
+from bridge_core_py.core import Card, CardSuit, Rank, TrickBid, SpecialBid, Tricks, Suit, PlayerDirection
 from bridge_core_py.az_network import AlphaZeroNetwork, DiscreteActionHead
 
 
@@ -93,3 +94,86 @@ class Assistant:
         if action not in legal_actions:
             action = SpecialBid.PASS
         return action
+    
+    def get_play_action(self, game_observation, legal_actions):
+        trump = game_observation['bidding']['bid'].suit
+        if trump is Suit.SPADES:
+            trump = 'S'
+        elif trump is Suit.HEARTS:
+            trump = 'H'
+        elif trump is Suit.DIAMONDS:
+            trump = 'D'
+        elif trump is Suit.CLUBS:
+            trump = 'C'
+        elif trump is Suit.NOTRUMP:
+            trump = 'N'
+        else:
+            raise ValueError(f'Invalid trump {trump}')
+        first = game_observation['current_player']
+        if first is PlayerDirection.NORTH:
+            first = 'N'
+        elif first is PlayerDirection.EAST:
+            first = 'E'
+        elif first is PlayerDirection.SOUTH:
+            first = 'S'
+        elif first is PlayerDirection.WEST:
+            first = 'W'
+        else:
+            raise ValueError(f'Invalid first {first}')
+        pbn = game_observation['handsPBN']
+        dds_out = x = subprocess.run(
+            f"SolveBoardPBN {trump} {first} '{pbn}'",
+            shell=True,
+            capture_output=True,
+        )
+        assert dds_out.returncode == 0
+        dds_str = dds_out.stdout.decode('utf-8')
+        assert dds_str.startswith('OK')
+        for line in dds_str.strip().splitlines()[3:]:
+            els = line.strip().split()
+            if len(els) == 5:
+                card, suit, rank, equals, score = els
+            else:
+                card, suit, rank, score = els
+            if suit == "S":
+                suit = CardSuit.SPADES
+            elif suit == "H":
+                suit = CardSuit.HEARTS
+            elif suit == "D":
+                suit = CardSuit.DIAMONDS
+            elif suit == "C":
+                suit = CardSuit.CLUBS
+            else:
+                raise ValueError(f"Unknown suit {suit}")
+            if rank == "A":
+                rank = Rank.ACE
+            elif rank == "K":
+                rank = Rank.KING
+            elif rank == "Q":
+                rank = Rank.QUEEN
+            elif rank == "J":
+                rank = Rank.JACK
+            elif rank == "T":
+                rank = Rank.TEN
+            elif rank == "9":
+                rank = Rank.NINE
+            elif rank == "8":
+                rank = Rank.EIGHT
+            elif rank == "7":
+                rank = Rank.SEVEN
+            elif rank == "6":
+                rank = Rank.SIX
+            elif rank == "5":
+                rank = Rank.FIVE
+            elif rank == "4":
+                rank = Rank.FOUR
+            elif rank == "3":
+                rank = Rank.THREE
+            elif rank == "2":
+                rank = Rank.TWO
+            else:
+                raise ValueError(f"Unknown rank {rank}")
+            card = Card(suit, rank)
+            if card in legal_actions:
+                return card
+        raise ValueError("No card found")

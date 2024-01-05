@@ -288,13 +288,21 @@ class Game:
         return hands_str
 
     def decide_with_assistant(self):
+        actions = self.actions()
         if self.stage is GameStage.BIDDING:
             bid_length = len(self.bid_history)
             if bid_length >= 6:
                 return SpecialBid.PASS
             else:
-                return self.assistant.get_bid_action(self.player_observation(self.current_player), self.actions())
+                try:
+                    return self.assistant.get_bid_action(self.player_observation(self.current_player), self.actions())
+                except:
+                    return SpecialBid.PASS
         else:
-            actions = self.actions()
-            action = self.rng.choice(actions)
-            return action
+            try:
+                action = self.assistant.get_play_action(self.game_observation(), self.actions())
+                assert action in actions
+                return action
+            except:
+                action = self.rng.choice(actions)
+                return action
