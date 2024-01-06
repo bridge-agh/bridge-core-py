@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "bridge-core-py"
-version = "0.1.5"
+version = "0.1.6"
 description = ""
 authors = [
     "Szymon Idec <szymon.idec@protonmail.com>",
@@ -13,7 +13,6 @@ packages = [{include = "bridge_core_py"}]
 [tool.poetry.dependencies]
 python = ">=3.10,<3.11"
 numpy = "^1.20"
-jax = {extras = ["cpu"], version = "^0.4.23"}
 dm-haiku = "^0.0.11"
 chex = "^0.1.85"
 
